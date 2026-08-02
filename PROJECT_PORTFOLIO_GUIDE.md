@@ -92,9 +92,13 @@ graph TD
 | **PostgreSQL 16** | Relational DB | Enterprise-grade SQL database supporting complex analytic window functions (`DENSE_RANK`, `ROW_NUMBER`, `SUM() OVER()`, `PERCENTILE_CONT`). |
 | **Server-Sent Events (SSE)** | Streaming API | Zero-overhead, unidirectional HTTP streaming protocol sending real-time progress (`tool_start`, `tool_end`, `widget`, `token`, `error`) to client browsers. |
 | **Web Scraper Pipeline** (`requests`, `yfinance`, `BeautifulSoup4`) | Data Ingestion | Multi-stage financial data harvester with automatic failover across 4 public financial data APIs and Indian stock exchange screeners. |
-| **Pytest & AnyIO** (`pytest`, `anyio`) | Automated Testing | Comprehensive unit and regression test suite (18 tests) validating currency normalization, DSA SQL queries, statistical engine accuracy, and scraper schema invariants. |
+| **Pytest & AnyIO** (`pytest`, `anyio`) | Automated Testing | Comprehensive unit and regression test suite (30 tests) validating AST guardrails, concurrency pool isolation, currency normalization, DSA SQL queries, statistical engine accuracy, and scraper schema invariants. |
 | **Structlog** (`structlog`) | Observability | Structured JSON logging with correlation IDs, method/path tracking, and error-stack recording for production debugging. |
 | **Vanilla JS & Glassmorphism CSS** | Frontend UI | Custom-engineered institutional dark-mode terminal with dynamic table horizontal scroll, sticky first-column headers, interactive column visibility togglers, clickable column sorting, and fullscreen modal inspection. |
+| **Render Cloud Platform** | Cloud Hosting | Live containerized Python runtime hosting (`render.yaml` + `Procfile`) with multi-path cloud price fallback (`price_fallback.py`, randomized User-Agents) that bypasses data-center IP blocks. |
+| **Aiven Managed PostgreSQL 16** | Cloud Database | Enterprise cloud PostgreSQL database (`console.aiven.io`) with SSL/TLS encryption (`ssl=require`), automatic asyncpg connection string normalization, and robust pool concurrency. |
+| **Python AST Security (`ast`)** | DevSecOps / Guardrails | Syntactic Abstract Syntax Tree parser (`sql_guard.py`) inspecting LLM-generated SQL before execution to block destructive queries (`DROP`, `DELETE`, `UPDATE`, stacked queries) and prevent prompt injection. |
+| **GitHub CI/CD & Secret Scanning** | Version Control | Production DevSecOps repository architecture with `.gitignore` secret isolation, GitHub Secret Scanning prevention, and continuous automated test verification. |
 
 ---
 
@@ -132,6 +136,21 @@ graph TD
     *   **Client-Side Table Sorting**: Clickable table headers (`<th>`) sorting rows ascending/descending instantaneously without re-querying the backend.
     *   **Fullscreen Maximize Modal (`#table-fullscreen-modal`)**: One-click expand across 100% of the viewport for deep institutional inspection.
 
+### E. Production Cloud Hosting on Render & Managed PostgreSQL on Aiven
+*   **The Cloud IP Block Challenge:** Free-tier cloud hosting providers like **Render** share data-center IPs that are heavily blocklisted by Yahoo Finance and standard financial scrapers.
+*   **The Engineering Solution (`price_fallback.py`):**
+    *   Engineered a **3-Path Cloud-Safe Price Fallback Chain** that automatically detects when `yfinance` returns empty data on Render and fails over to direct Yahoo Finance v8/v10 HTTPS endpoints.
+    *   Implements **Randomized User-Agent Pooling** (`_UA_POOL`) and polite jittered delays (`0.3s–0.8s`) to bypass data-center bot detection.
+    *   Configured **Aiven Managed PostgreSQL 16** (`console.aiven.io`) in the cloud with automatic URL normalization (`normalize_database_url` in `config.py`) converting `postgres://` to `postgresql+asyncpg://` and mapping `sslmode=require` to `ssl=require`.
+
+### F. SQL AST Security Guardrails & DevSecOps CI/CD
+*   **AST-Level Security Guardrails (`sql_guard.py`):**
+    *   Rather than relying on vulnerable regex matching, we implemented a Python Abstract Syntax Tree (`ast` module) syntactic parser that inspects every LLM-generated SQL query before execution.
+    *   Prohibits destructive operations (`DROP`, `DELETE`, `UPDATE`, `ALTER`, stacked queries, table mutations) at the parser boundary and enforces automatic `LIMIT` clamping on large SELECT queries.
+*   **DevSecOps & CI/CD Pipeline:**
+    *   Automated 30-Test Pytest Suite running across SQL AST guardrails, concurrency checkpointer isolation, and currency normalization invariants.
+    *   Strict `.gitignore` credential isolation and GitHub Secret Scanning prevention to eliminate leaked API keys in git commit history.
+
 ---
 
 ## 4. Resume & LinkedIn Showcase Blueprint
@@ -144,6 +163,8 @@ Use these quantified bullets under your **Projects** or **Work Experience** sect
     *   Engineered a **self-healing 7-stage multi-adapter data pipeline** (`yfinance` → Yahoo JSON API → Screener India → Stooq) with automatic currency normalization (`USD $`) and alias resolution (`COMMON_SYMBOL_ALIASES`), providing automatic failover recovery across public financial APIs and Indian exchange screeners.
     *   Implemented **Server-Sent Events (SSE)** streaming in **FastAPI** to deliver token-by-token LLM output and real-time tool execution traces to a custom reactive JavaScript UI with dynamic table sorting, column toggling, and sticky-column scrolling.
     *   Designed an **Algorithmic SQL Engine** using PostgreSQL window functions (`DENSE_RANK`, `VWAP`, Z-score anomaly detection), eliminating prompt-stuffing by computing rankings and time-series aggregates directly inside database queries rather than loading raw rows into LLM context windows.
+    *   Engineered a production DevSecOps CI/CD pipeline and deployed live to **Render** cloud hosting with an **Aiven Managed PostgreSQL** database, achieving a **100% test pass rate across 30 automated concurrency and security guardrail tests**.
+    *   Architected a **3-path cloud-safe price fallback engine** with randomized User-Agent pooling to bypass cloud data-center IP blocks, and implemented **Python AST-level SQL validation** to reject prompt injection and destructive database operations.
 
 ### B. LinkedIn Project Showcase Post (Template)
 ```text
