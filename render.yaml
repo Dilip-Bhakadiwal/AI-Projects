@@ -9,3 +9,17 @@ services:
         value: 3.12.5
       - key: LOG_LEVEL
         value: INFO
+      # ── LLM (add ONE of these in Render dashboard → Environment) ──────
+      # Get a free key at https://openrouter.ai → Dashboard → API Keys
+      - key: OPENROUTER_API_KEY
+        sync: false        # never committed to git — set in Render UI
+      # OR: get a free key at https://build.nvidia.com
+      - key: NVIDIA_API_KEY
+        sync: false
+      # ── Database (optional — portfolio storage) ───────────────────────
+      # Create a free Neon.tech or Supabase Postgres DB and paste the URL here
+      - key: DATABASE_URL
+        sync: false
+      # ── API Security ──────────────────────────────────────────────────
+      - key: API_KEY
+        value: dev-key    # change this in Render dashboard for production

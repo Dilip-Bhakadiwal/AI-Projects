@@ -240,6 +240,14 @@ async def stream_query_events(question: str, session_id: str = "default_session"
         return
     # ────────────────────────────────────────────────────────────────────
 
+    # Check LLM key is available before invoking agent
+    try:
+        _ = settings.llm_api_key
+    except ValueError:
+        yield f"data: {json.dumps({'type': 'token', 'content': '⚠️ **AI Agent Unavailable** — No LLM API key is configured on the server.\\n\\n**To enable AI queries**, add one of these to your Render environment variables:\\n- `OPENROUTER_API_KEY` (free at [openrouter.ai](https://openrouter.ai))\\n- `NVIDIA_API_KEY` (free at [build.nvidia.com](https://build.nvidia.com))\\n\\nYou can still check stock prices, add tickers to the portfolio, and use all other features.'})}\\n\\n"
+        yield f"data: {json.dumps({'type': 'done'})}\\n\\n"
+        return
+
     agent = get_query_agent()
     messages = {"messages": [HumanMessage(content=question)]}
     config = {"configurable": {"thread_id": session_id}, "recursion_limit": 10}

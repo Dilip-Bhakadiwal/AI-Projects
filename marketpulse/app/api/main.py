@@ -44,11 +44,24 @@ async def lifespan(app: FastAPI):
     """Run startup tasks before accepting requests."""
     logger.info("api_startup", action="starting MarketPulse API")
     from app.config import settings
-    if not settings.llm_api_key:
-        logger.error("api_startup_failed", error="Missing LLM API Key in environment.")
-        raise ValueError("Missing LLM API Key in environment.")
-    await init_db()
-    logger.info("database_ready", action="API is live")
+
+    # Warn about missing LLM key but keep the app alive — stock price
+    # fetching (yfinance) works fine without it; only NL agent queries fail.
+    try:
+        key = settings.llm_api_key
+        logger.info("llm_key_loaded", provider="nvidia" if settings.nvidia_api_key else "openrouter")
+    except ValueError:
+        logger.warning("llm_key_missing", warning="No NVIDIA_API_KEY or OPENROUTER_API_KEY set. AI agent queries will be disabled.")
+
+    # DB init is optional — if no DATABASE_URL is configured the app still
+    # serves the UI and yfinance-based stock lookups.
+    try:
+        await init_db()
+        logger.info("database_ready", action="DB tables created/verified")
+    except Exception as db_err:
+        logger.warning("database_unavailable", error=str(db_err), warning="Running without persistent DB. Portfolio storage disabled.")
+
+    logger.info("api_live", action="API is live")
     yield
     logger.info("api_shutdown", action="MarketPulse API shutting down")
 
