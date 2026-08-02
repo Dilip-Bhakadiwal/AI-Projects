@@ -219,6 +219,17 @@
         .markdown-body th:hover { background: rgba(223, 255, 0, 0.15); color: #DFFF00; }
         .markdown-body td { color: #e5e2e1; }
         .markdown-body tr:hover td { background: rgba(53,53,53,0.4); }
+        .markdown-body th:first-child, .markdown-body td:first-child {
+            position: sticky;
+            left: 0;
+            background: #1b1b1b;
+            z-index: 10;
+            box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.6);
+        }
+        .markdown-body th:first-child {
+            z-index: 20;
+            background: #20201f;
+        }
         .markdown-body p { margin: 0.5em 0; }
         .markdown-body code { background: rgba(14,14,14,0.6); padding: 2px 6px; border-radius: 4px; font-family: 'Geist Mono', monospace; font-size: 12px; color: #DFFF00; }
         .markdown-body pre { background: rgba(14,14,14,0.8); padding: 12px; border-radius: 8px; overflow-x: auto; }
@@ -227,12 +238,19 @@
     </style>
 </head>
 <body class="font-body-md text-body-md h-screen w-full flex overflow-hidden">
+<!-- Mobile Sidebar Backdrop -->
+<div id="sidebar-backdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden md:hidden transition-opacity"></div>
 <!-- SIDEBAR -->
-<aside class="w-[280px] h-screen fixed left-0 top-0 flex flex-col py-10 px-6 glass-panel z-50 overflow-hidden" style="--x: 50%; --y: 50%;">
+<aside id="app-sidebar" class="w-[280px] h-screen fixed left-0 top-0 flex flex-col py-10 px-6 glass-panel z-50 overflow-hidden -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out" style="--x: 50%; --y: 50%;">
 <!-- Brand -->
-<div class="mb-12 relative z-10">
+<div class="mb-12 relative z-10 flex items-start justify-between">
+<div>
 <h1 class="font-headline-md text-[24px] font-bold text-lime-spark tracking-tight">MarketPulse</h1>
 <p class="font-label-caps text-[10px] text-on-surface-variant/60 mt-1 uppercase">Institutional Terminal</p>
+</div>
+<button type="button" onclick="toggleSidebar(false)" class="md:hidden text-on-surface-variant hover:text-lime-spark p-1">
+<span class="material-symbols-outlined">close</span>
+</button>
 </div>
 <!-- Navigation -->
 <nav aria-label="Sidebar Navigation" class="flex flex-col space-y-1 mb-8 relative z-10" role="navigation">
@@ -272,17 +290,20 @@
 </aside>
 
 <!-- MAIN CONTENT -->
-<main class="flex-1 ml-[280px] h-screen flex flex-col relative overflow-hidden">
+<main class="flex-1 md:ml-[280px] h-screen flex flex-col relative overflow-hidden w-full">
 <!-- TOP APP BAR -->
-<header class="flex justify-between items-center h-[72px] px-10 w-full sticky top-0 z-40 bg-surface-dim/40 backdrop-blur-[32px] border-b border-outline-variant/10">
-<div class="flex items-center gap-4">
+<header class="flex justify-between items-center h-[72px] px-4 md:px-10 w-full sticky top-0 z-30 bg-surface-dim/40 backdrop-blur-[32px] border-b border-outline-variant/10">
+<div class="flex items-center gap-3 md:gap-4">
+<button type="button" onclick="toggleSidebar(true)" class="md:hidden w-10 h-10 rounded-lg bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface hover:text-lime-spark transition-colors" aria-label="Open Sidebar">
+<span class="material-symbols-outlined">menu</span>
+</button>
 <div class="w-8 h-8 rounded-full bg-lime-spark/20 flex items-center justify-center">
 <span class="material-symbols-outlined text-lime-spark text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
 </div>
-<span class="font-headline-md text-xl font-bold text-on-surface">MarketPulse AI</span>
+<span class="font-headline-md text-base md:text-xl font-bold text-on-surface">MarketPulse AI</span>
 </div>
 <div class="flex items-center gap-6">
-    <div class="flex items-center gap-2 px-4 py-2 rounded bg-surface-container border border-outline-variant/20">
+    <div class="hidden sm:flex items-center gap-2 px-4 py-2 rounded bg-surface-container border border-outline-variant/20">
         <div class="w-2 h-2 rounded-full bg-lime-spark animate-pulse"></div>
         <span class="font-label-caps text-[10px] text-on-surface-variant uppercase">API Online</span>
     </div>
@@ -290,8 +311,8 @@
 </header>
 
 <!-- DASHBOARD BODY — Chat Stream -->
-<div class="flex-1 overflow-y-auto p-10 flex flex-col items-center terminal-scroll" id="chat-container">
-<div class="w-full max-w-4xl space-y-8 pb-[300px]" id="chat-stream">
+<div class="flex-1 overflow-y-auto p-4 md:p-10 flex flex-col items-center terminal-scroll" id="chat-container">
+<div class="w-full max-w-4xl space-y-6 md:space-y-8 pb-[220px] md:pb-[300px]" id="chat-stream">
 <!-- Welcome Message -->
 <div class="flex justify-start">
 <div class="max-w-[90%] w-full glass-panel rounded-xl p-0.5 overflow-hidden">
@@ -312,7 +333,7 @@
 </div>
 
 <!-- BOTTOM INPUT & PROGRESS -->
-<div class="fixed bottom-0 left-[280px] right-0 p-8 flex flex-col items-center bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none z-40">
+<div class="fixed bottom-0 left-0 md:left-[280px] right-0 p-4 md:p-8 flex flex-col items-center bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none z-30" style="padding-bottom: max(1rem, env(safe-area-inset-bottom));">
 <div class="w-full max-w-3xl pointer-events-auto flex flex-col gap-4">
 
 <!-- Smart DSA & Analytics Quick Chips -->
@@ -343,7 +364,7 @@
 <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-lime-spark transition-colors" tabindex="-1">
 <span class="material-symbols-outlined">add</span>
 </button>
-<input id="chat-input" class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 text-on-surface placeholder:text-on-surface-variant/40 font-body-md" placeholder="Ask about market trends, stock prices, or your portfolio..." type="text" autocomplete="off">
+<input id="chat-input" class="flex-1 bg-transparent border-none focus:ring-0 text-base md:text-sm py-3 text-on-surface placeholder:text-on-surface-variant/40 font-body-md" placeholder="Ask MarketPulse AI..." type="text" autocomplete="off">
 <button id="chat-submit" type="submit" class="w-10 h-10 rounded-full bg-lime-spark text-on-tertiary flex items-center justify-center liquid-button group disabled:opacity-30">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">send</span>
 </button>
@@ -376,6 +397,32 @@
 </main>
 
 <script>
+    // ═══════════════════════════════════════════════════════════════
+    // 0. MOBILE SIDEBAR DRAWER & VISIBILITY CONTROL
+    // ═══════════════════════════════════════════════════════════════
+    function toggleSidebar(open) {
+        const sidebar = document.getElementById('app-sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (open) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+        }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            updateMetrics();
+            if (typeof activeEventSource !== 'undefined' && activeEventSource && activeEventSource.readyState === EventSource.CLOSED) {
+                appendLog('Tab resumed — SSE stream closed by OS.', 'default');
+            }
+        }
+    });
+
     // ═══════════════════════════════════════════════════════════════
     // 1. STATUS POLLING — Live sidebar metrics from /status
     // ═══════════════════════════════════════════════════════════════
