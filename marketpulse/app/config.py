@@ -3,6 +3,7 @@ app/config.py — Centralised settings using pydantic-settings.
 All env vars are loaded from .env automatically.
 """
 import os
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +16,21 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/marketpulse"
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, v: str) -> str:
+        if not v:
+            return "postgresql+asyncpg://postgres:postgres@localhost:5432/marketpulse"
+        # Ensure postgresql+asyncpg:// scheme for SQLAlchemy async engine
+        if v.startswith("postgres://"):
+            v = v.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif v.startswith("postgresql://") and not v.startswith("postgresql+asyncpg://"):
+            v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        # asyncpg does not support 'sslmode=', it requires 'ssl='
+        if "sslmode=" in v:
+            v = v.replace("sslmode=", "ssl=")
+        return v
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"
