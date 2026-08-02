@@ -521,7 +521,7 @@
         let currentAgentBox = null;
         let markdownBuffer = "";
 
-        const url = `/query/stream?question=${encodeURIComponent(msg)}&api_key=marketpulse-dev-key-change-in-prod&session_id=${sessionId}`;
+        const url = `/query/stream?question=${encodeURIComponent(msg)}&api_key=dev-key&session_id=${sessionId}`;
         const eventSource = new EventSource(url);
         activeEventSource = eventSource;
 
