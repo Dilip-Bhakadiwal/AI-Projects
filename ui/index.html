@@ -1,0 +1,1278 @@
+<!DOCTYPE html><html class="dark" lang="en" style="">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>MarketPulse | Institutional Terminal</title>
+<meta name="description" content="MarketPulse AI — Real-time market data pipeline with statistical anomaly detection and natural language query agent.">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- Load Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#ffffff",
+                    "on-surface-variant": "#c6c9ab",
+                    "on-error-container": "#ffdad6",
+                    "on-tertiary": "#2f3131",
+                    "surface-container-highest": "#353535",
+                    "outline-variant": "#454932",
+                    "primary-container": "#d2f000",
+                    "secondary-container": "#474747",
+                    "on-background": "#e5e2e1",
+                    "on-primary": "#2c3400",
+                    "primary": "#ffffff",
+                    "tertiary-container": "#e3e2e2",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-container": "#20201f",
+                    "on-tertiary-container": "#646464",
+                    "background": "#131313",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "on-secondary-fixed-variant": "#474747",
+                    "secondary-fixed": "#e4e2e1",
+                    "secondary-fixed-dim": "#c8c6c6",
+                    "on-tertiary-fixed-variant": "#464747",
+                    "secondary": "#c8c6c6",
+                    "surface-container-high": "#2a2a2a",
+                    "tertiary-fixed": "#e3e2e2",
+                    "on-secondary-container": "#b6b5b4",
+                    "on-error": "#690005",
+                    "on-primary-container": "#5d6b00",
+                    "surface": "#131313",
+                    "surface-dim": "#131313",
+                    "on-surface": "#e5e2e1",
+                    "on-secondary-fixed": "#1b1c1c",
+                    "primary-fixed": "#d2f000",
+                    "surface-variant": "#353535",
+                    "inverse-surface": "#e5e2e1",
+                    "error": "#ffb4ab",
+                    "surface-tint": "#b8d300",
+                    "inverse-on-surface": "#313030",
+                    "inverse-primary": "#576500",
+                    "surface-container-low": "#1b1b1b",
+                    "primary-fixed-dim": "#b8d300",
+                    "on-primary-fixed": "#191e00",
+                    "on-secondary": "#303030",
+                    "outline": "#909378",
+                    "error-container": "#93000a",
+                    "tertiary-fixed-dim": "#c7c6c6",
+                    "surface-bright": "#393939",
+                    "on-primary-fixed-variant": "#414c00",
+                    "lime-spark": "#DFFF00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "sm": "8px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px",
+                    "gutter": "20px",
+                    "xl": "40px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Geist"],
+                    "data-terminal": ["Geist Mono"],
+                    "chat-bubble": ["Geist"],
+                    "body-md": ["Geist"],
+                    "label-caps": ["Geist Mono"],
+                    "display-ticker": ["Geist"],
+                    "headline-lg": ["Geist"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        :root {
+            --surface-graphite: #131313;
+            --glass-tint: rgba(26, 26, 26, 0.4);
+            --glass-border: rgba(144, 147, 120, 0.3);
+            --content-solid: #1b1b1b;
+            --lime-spark: #DFFF00;
+        }
+
+        body {
+            background-color: #131313;
+            background-image: linear-gradient(135deg, rgba(8, 8, 8, 0.35) 0%, rgba(15, 15, 15, 0.25) 50%, rgba(10, 10, 10, 0.40) 100%), url('/assets/bg-unsplash.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #e5e2e1;
+            overflow: hidden;
+        }
+
+        /* ── True Glassmorphism Engine ── */
+        .glass-panel, .glass-card, .glass-subtle {
+            backdrop-filter: blur(28px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            background: rgba(18, 18, 18, 0.30) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.40) !important;
+        }
+
+        /* Force transparency on all nested panels, headers, message bubbles, widgets, and cards */
+        .bg-\[\#1b1b1b\]\/80,
+        .bg-surface-container-low\/40,
+        .bg-surface-container-lowest,
+        .bg-surface-container,
+        .bg-surface-dim\/40,
+        .bg-surface-variant\/20,
+        [class*="bg-[#1b1b1b]"],
+        [class*="bg-surface-container"],
+        [class*="bg-surface-dim"],
+        [class*="bg-surface-variant/20"] {
+            background: rgba(255, 255, 255, 0.06) !important;
+            backdrop-filter: blur(24px) saturate(160%) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        }
+
+        .border-outline-variant\/10,
+        .border-outline-variant\/20,
+        .border-outline-variant\/30,
+        [class*="border-outline-variant"] {
+            border-color: rgba(255, 255, 255, 0.14) !important;
+        }
+
+        .from-background {
+            --tw-gradient-from: rgba(19, 19, 19, 0.40) !important;
+        }
+        .via-background\/90,
+        [class*="via-background"] {
+            --tw-gradient-via: rgba(19, 19, 19, 0.20) !important;
+        }
+
+        .specular-highlight {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(223, 255, 0, 0.15) 0%, transparent 45%);
+            z-index: 1;
+            border-radius: inherit;
+        }
+
+        .liquid-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .liquid-button::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+            opacity: 0.35;
+        }
+
+        .liquid-button:hover::after {
+            opacity: 0.5;
+        }
+
+        .terminal-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: rgba(144, 147, 120, 0.2);
+            border-radius: 2px;
+        }
+
+        @keyframes pulse-lime {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .animate-pulse-lime {
+            animation: pulse-lime 3s infinite ease-in-out;
+        }
+
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .log-entry {
+            animation: slide-up 0.3s ease-out forwards;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Markdown content styling for dark theme */
+        .markdown-body table { border-collapse: collapse; width: 100%; margin: 0; min-width: 600px; }
+        .markdown-body th, .markdown-body td { border: 1px solid rgba(69,73,50,0.3); padding: 8px 14px; text-align: left; font-size: 12px; white-space: nowrap; }
+        .markdown-body th { background: rgba(32,32,31,0.95); color: #c6c9ab; font-family: 'Geist Mono', monospace; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; cursor: pointer; user-select: none; }
+        .markdown-body th:hover { background: rgba(223, 255, 0, 0.15); color: #DFFF00; }
+        .markdown-body td { color: #e5e2e1; }
+        .markdown-body tr:hover td { background: rgba(53,53,53,0.4); }
+        .markdown-body p { margin: 0.5em 0; }
+        .markdown-body code { background: rgba(14,14,14,0.6); padding: 2px 6px; border-radius: 4px; font-family: 'Geist Mono', monospace; font-size: 12px; color: #DFFF00; }
+        .markdown-body pre { background: rgba(14,14,14,0.8); padding: 12px; border-radius: 8px; overflow-x: auto; }
+        .markdown-body ul, .markdown-body ol { padding-left: 1.5em; margin: 0.5em 0; }
+        .markdown-body a { color: #DFFF00; text-decoration: underline; }
+    </style>
+</head>
+<body class="font-body-md text-body-md h-screen w-full flex overflow-hidden">
+<!-- SIDEBAR -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 flex flex-col py-10 px-6 glass-panel z-50 overflow-hidden" style="--x: 50%; --y: 50%;">
+<!-- Brand -->
+<div class="mb-12 relative z-10">
+<h1 class="font-headline-md text-[24px] font-bold text-lime-spark tracking-tight">MarketPulse</h1>
+<p class="font-label-caps text-[10px] text-on-surface-variant/60 mt-1 uppercase">Institutional Terminal</p>
+</div>
+<!-- Navigation -->
+<nav aria-label="Sidebar Navigation" class="flex flex-col space-y-1 mb-8 relative z-10" role="navigation">
+<a aria-label="Dashboard" class="flex items-center gap-3 py-3 rounded text-lime-spark font-bold border-r-2 border-lime-spark bg-lime-spark/10 transition-colors px-2 focus:outline-none focus:ring-2 focus:ring-lime-spark" href="#">
+<span aria-hidden="true" class="material-symbols-outlined">dashboard</span>
+<span class="font-label-caps text-[12px] uppercase">Dashboard</span>
+</a>
+</nav>
+
+<!-- Tracked Stocks Card — LIVE from /status -->
+<div class="bg-surface-container-low/40 rounded p-4 border border-outline-variant/20 mb-8 relative z-10">
+<span class="font-label-caps text-[10px] text-on-surface-variant mb-3 block uppercase">TRACKED ASSETS</span>
+<div class="flex items-baseline gap-2 mb-3">
+    <span id="ticker-count" class="text-3xl font-bold text-on-surface font-headline-lg">0</span>
+    <span class="font-label-caps text-[10px] text-on-surface-variant/40 uppercase">stocks</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+    <div class="w-2 h-2 rounded-full bg-lime-spark animate-pulse" id="db-status-dot"></div>
+    <span id="db-status-text" class="font-data-terminal text-[10px] text-on-surface-variant">DB: CONNECTING...</span>
+</div>
+</div>
+
+<!-- Terminal Window — LIVE server logs -->
+<div class="mt-auto h-[220px] flex flex-col bg-surface-container-lowest border border-outline-variant/30 rounded overflow-hidden relative z-10">
+<div class="px-3 py-2 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase">LIVE SERVER LOGS</span>
+<div class="flex gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-lime-spark"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-outline"></div>
+</div>
+</div>
+<div class="p-3 font-data-terminal text-[11px] overflow-y-auto terminal-scroll flex flex-col gap-1" id="terminal-logs">
+    <div class="log-entry"><span class="text-on-surface-variant/60">[SYS]</span> Waiting for events...</div>
+</div>
+</div>
+<div class="specular-highlight"></div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="flex-1 ml-[280px] h-screen flex flex-col relative overflow-hidden">
+<!-- TOP APP BAR -->
+<header class="flex justify-between items-center h-[72px] px-10 w-full sticky top-0 z-40 bg-surface-dim/40 backdrop-blur-[32px] border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-lime-spark/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-lime-spark text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<span class="font-headline-md text-xl font-bold text-on-surface">MarketPulse AI</span>
+</div>
+<div class="flex items-center gap-6">
+    <div class="flex items-center gap-2 px-4 py-2 rounded bg-surface-container border border-outline-variant/20">
+        <div class="w-2 h-2 rounded-full bg-lime-spark animate-pulse"></div>
+        <span class="font-label-caps text-[10px] text-on-surface-variant uppercase">API Online</span>
+    </div>
+</div>
+</header>
+
+<!-- DASHBOARD BODY — Chat Stream -->
+<div class="flex-1 overflow-y-auto p-10 flex flex-col items-center terminal-scroll" id="chat-container">
+<div class="w-full max-w-4xl space-y-8 pb-[300px]" id="chat-stream">
+<!-- Welcome Message -->
+<div class="flex justify-start">
+<div class="max-w-[90%] w-full glass-panel rounded-xl p-0.5 overflow-hidden">
+<div class="bg-[#1b1b1b]/80 backdrop-blur-md p-6 rounded-[calc(0.75rem-2px)]">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded bg-lime-spark/10 border border-lime-spark/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-lime-spark text-sm">auto_awesome</span>
+</div>
+<span class="font-headline-md text-[16px] text-on-surface">MarketPulse AI</span>
+</div>
+<p class="font-chat-bubble text-on-surface-variant text-sm leading-relaxed">
+    Welcome to the Institutional Terminal. I can help you query live stock data, add tickers to your portfolio, search the web for market news, and run statistical analysis. Ask me anything.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- BOTTOM INPUT & PROGRESS -->
+<div class="fixed bottom-0 left-[280px] right-0 p-8 flex flex-col items-center bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none z-40">
+<div class="w-full max-w-3xl pointer-events-auto flex flex-col gap-4">
+
+<!-- Smart DSA & Analytics Quick Chips -->
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+    <button type="button" onclick="openDsaModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-spark/15 hover:bg-lime-spark/25 border border-lime-spark/30 text-lime-spark text-xs font-medium transition-all shrink-0">
+        <span class="material-symbols-outlined text-sm">database</span>
+        <span>Top 20 DSA Queries</span>
+    </button>
+    <button type="button" onclick="runSmartQuery('Show Top 3 stocks by trading volume for every exchange')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all shrink-0">
+        <span>⚡ Top Volume Stocks</span>
+    </button>
+    <button type="button" onclick="runSmartQuery('Calculate 20-period simple moving average across price snapshots')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all shrink-0">
+        <span>📈 20-Bar SMA</span>
+    </button>
+    <button type="button" onclick="runSmartQuery('Flag statistical price anomalies where Z-score > 2.0 standard deviations')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all shrink-0">
+        <span>🚨 Z-Score Anomalies</span>
+    </button>
+    <button type="button" onclick="runSmartQuery('Compute Volume Weighted Average Price (VWAP) for AAPL')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all shrink-0">
+        <span>⚖️ AAPL VWAP</span>
+    </button>
+    <button type="button" onclick="runSmartQuery('Find longest consecutive streak of bullish bars per ticker')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all shrink-0">
+        <span>🔥 Bullish Streak</span>
+    </button>
+</div>
+
+<!-- Chat Input Form -->
+<form id="chat-form" class="glass-panel rounded-full p-2 flex items-center gap-4 shadow-2xl" style="--x: 50%; --y: 50%;">
+<button type="button" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-lime-spark transition-colors" tabindex="-1">
+<span class="material-symbols-outlined">add</span>
+</button>
+<input id="chat-input" class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 text-on-surface placeholder:text-on-surface-variant/40 font-body-md" placeholder="Ask about market trends, stock prices, or your portfolio..." type="text" autocomplete="off">
+<button id="chat-submit" type="submit" class="w-10 h-10 rounded-full bg-lime-spark text-on-tertiary flex items-center justify-center liquid-button group disabled:opacity-30">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">send</span>
+</button>
+</form>
+
+<!-- Agent Progress Bar -->
+<div id="progress-wrap" class="glass-panel rounded-xl p-4 relative overflow-hidden" style="visibility: hidden; --x: 50%; --y: 50%;">
+<div class="flex items-center justify-between mb-3 relative z-10">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-lime-spark/10 flex items-center justify-center animate-pulse-lime">
+<span class="material-symbols-outlined text-lime-spark text-sm" style="font-variation-settings: 'FILL' 1;">hub</span>
+</div>
+<div>
+<h3 class="font-headline-md text-[14px] text-on-surface">Agent Neural Pipeline</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label-caps text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">ACTIVE</span>
+<span id="progress-label" class="font-data-terminal text-[10px] text-on-surface-variant">Thinking...</span>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full h-1 bg-outline-variant/20 rounded-full overflow-hidden relative z-10">
+    <div id="progress-bar" class="h-full bg-gradient-to-r from-lime-spark to-primary-fixed-dim rounded-full transition-all duration-500" style="width: 0%"></div>
+</div>
+<div class="specular-highlight"></div>
+</div>
+
+</div>
+</div>
+</main>
+
+<script>
+    // ═══════════════════════════════════════════════════════════════
+    // 1. STATUS POLLING — Live sidebar metrics from /status
+    // ═══════════════════════════════════════════════════════════════
+    async function updateMetrics() {
+        try {
+            const res = await fetch('/status');
+            const data = await res.json();
+            document.getElementById('ticker-count').textContent = data.active_tickers || 0;
+            document.getElementById('db-status-text').textContent = 'DB: ' + (data.database || 'UNKNOWN').toUpperCase();
+            document.getElementById('db-status-dot').className = 'w-2 h-2 rounded-full animate-pulse ' +
+                (data.database === 'ok' ? 'bg-lime-spark' : 'bg-error');
+        } catch (e) {
+            document.getElementById('db-status-text').textContent = 'DB: OFFLINE';
+            document.getElementById('db-status-dot').className = 'w-2 h-2 rounded-full bg-error';
+        }
+    }
+    updateMetrics();
+    setInterval(updateMetrics, 8000);
+
+    // ═══════════════════════════════════════════════════════════════
+    // 2. TERMINAL LOG — Real-time server log in sidebar
+    // ═══════════════════════════════════════════════════════════════
+    const terminalLogs = document.getElementById('terminal-logs');
+    function appendLog(text, level) {
+        // Clear the "Waiting for events..." placeholder on first real log
+        if (terminalLogs.children.length === 1 && terminalLogs.children[0].textContent.includes('Waiting')) {
+            terminalLogs.innerHTML = '';
+        }
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        const ts = new Date().toLocaleTimeString('en-US', { hour12: false });
+
+        let colorClass = 'text-lime-spark';
+        if (level === 'error') colorClass = 'text-error';
+        else if (level === 'default' || level === 'info') colorClass = 'text-on-surface-variant/60';
+
+        div.innerHTML = `<span class="${colorClass}">[${ts}]</span> ${text}`;
+        terminalLogs.appendChild(div);
+
+        if (terminalLogs.children.length > 40) {
+            terminalLogs.removeChild(terminalLogs.firstChild);
+        }
+        terminalLogs.scrollTop = terminalLogs.scrollHeight;
+    }
+    appendLog('Terminal active. Server log connected.', 'info');
+
+    // ═══════════════════════════════════════════════════════════════
+    // 3. CHAT UI — Message rendering, progress, SSE streaming
+    // ═══════════════════════════════════════════════════════════════
+    const chatContainer = document.getElementById('chat-container');
+    const chatStream = document.getElementById('chat-stream');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatSubmit = document.getElementById('chat-submit');
+    const sessionId = Math.random().toString(36).substring(2, 15);
+
+    // ── Add a chat message bubble ──
+    function addMessage(role, content) {
+        const wrapper = document.createElement('div');
+
+        if (role === 'user') {
+            wrapper.className = 'flex justify-end';
+            wrapper.innerHTML = `
+                <div class="max-w-[80%] bg-surface-variant/20 rounded-xl p-5 border border-outline-variant/10">
+                    <p class="font-chat-bubble text-on-surface text-sm">${content}</p>
+                </div>
+            `;
+        } else {
+            wrapper.className = 'flex justify-start';
+            wrapper.innerHTML = `
+                <div class="max-w-[90%] w-full glass-panel rounded-xl p-0.5 overflow-hidden">
+                    <div class="bg-[#1b1b1b]/80 backdrop-blur-md p-6 rounded-[calc(0.75rem-2px)]">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-6 h-6 rounded bg-lime-spark/10 border border-lime-spark/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-lime-spark text-[14px]">auto_awesome</span>
+                            </div>
+                            <span class="font-label-caps text-[10px] text-on-surface-variant/60 uppercase">MarketPulse AI</span>
+                        </div>
+                        <div class="font-chat-bubble text-on-surface-variant text-sm leading-relaxed markdown-body agent-content">
+                            ${content}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        chatStream.appendChild(wrapper);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        return wrapper.querySelector('.agent-content');
+    }
+
+    // ── Progress bar control ──
+    const progressWrap = document.getElementById('progress-wrap');
+    const progressBar = document.getElementById('progress-bar');
+    const progressLabel = document.getElementById('progress-label');
+    let progressInterval = null;
+
+    function startProgress(label) {
+        progressWrap.style.visibility = 'visible';
+        progressLabel.textContent = label;
+        let w = 0;
+        clearInterval(progressInterval);
+        progressInterval = setInterval(() => {
+            if (w < 85) { w += (85 - w) * 0.04 + 0.5; }
+            progressBar.style.width = Math.min(w, 85) + '%';
+        }, 120);
+    }
+    function finishProgress() {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressLabel.textContent = 'Done';
+        setTimeout(() => {
+            progressWrap.style.visibility = 'hidden';
+            progressBar.style.width = '0%';
+        }, 1200);
+    }
+    function updateProgress(label) {
+        progressLabel.textContent = label;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 4. SSE STREAMING — Connect chat to /query/stream
+    // ═══════════════════════════════════════════════════════════════
+    let activeEventSource = null;
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+
+        if (activeEventSource) {
+            activeEventSource.close();
+            activeEventSource = null;
+        }
+
+        chatInput.value = '';
+        chatInput.disabled = true;
+        chatSubmit.disabled = true;
+
+        addMessage('user', msg);
+        startProgress('Thinking...');
+        appendLog('USER: ' + msg.slice(0, 60), 'info');
+
+        let currentAgentBox = null;
+        let markdownBuffer = "";
+
+        const url = `/query/stream?question=${encodeURIComponent(msg)}&api_key=marketpulse-dev-key-change-in-prod&session_id=${sessionId}`;
+        const eventSource = new EventSource(url);
+        activeEventSource = eventSource;
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.type === 'token') {
+                if (!currentAgentBox) {
+                    currentAgentBox = addMessage('agent', '');
+                }
+                markdownBuffer += data.content;
+                try {
+                    let parsedHTML = marked.parse(markdownBuffer);
+                    if (!parsedHTML.trim()) {
+                        parsedHTML = `<span class="italic text-on-surface-variant/50">Agent completed task.</span>`;
+                    }
+                    currentAgentBox.innerHTML = parsedHTML;
+                } catch (err) {
+                    currentAgentBox.innerHTML = markdownBuffer;
+                }
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } else if (data.type === 'widget') {
+                // ── Stock Widget ──
+                const stockData = data.data;
+                const widgetId = "sn_" + Math.random().toString(36).substr(2, 9);
+                const isNeg = stockData.change_pct && stockData.change_pct.startsWith('-');
+                const changeColor = isNeg ? 'text-error' : 'text-lime-spark';
+                const changeBg = isNeg ? 'bg-error/10 border-error/20' : 'bg-lime-spark/10 border-lime-spark/20';
+                const lineColor = isNeg ? '#ffb4ab' : '#DFFF00';
+                const fillColorStart = isNeg ? 'rgba(255,180,171,0.15)' : 'rgba(223,255,0,0.15)';
+                const arrowIcon = isNeg ? 'trending_down' : 'trending_up';
+
+                const widgetHtml = `
+<div class="w-full py-4" id="${widgetId}">
+  <div class="w-full glass-panel rounded-xl p-0.5 overflow-hidden">
+    <div class="bg-[#1b1b1b]/80 backdrop-blur-md p-6 rounded-[calc(0.75rem-2px)]">
+
+    <!-- Header -->
+    <div class="flex items-start justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded bg-lime-spark/10 flex items-center justify-center border border-lime-spark/20">
+          <span class="material-symbols-outlined text-lime-spark text-[20px]">monitoring</span>
+        </div>
+        <div>
+          <h3 class="text-on-surface font-bold text-sm tracking-tight font-headline-md">${stockData.name || stockData.ticker}</h3>
+          <p class="text-[10px] font-bold text-on-surface-variant/60 tracking-widest uppercase mt-0.5 font-label-caps">${stockData.ticker} · LIVE</p>
+        </div>
+      </div>
+      <span class="text-[10px] bg-lime-spark/10 px-2 py-1 rounded text-lime-spark font-bold tracking-tighter font-label-caps border border-lime-spark/10 uppercase">FEED: LIVE</span>
+    </div>
+
+    <!-- Price Block -->
+    <div class="flex items-end justify-between flex-wrap gap-4 mb-6">
+      <div>
+        <div class="flex items-baseline gap-3">
+          <span class="text-4xl font-bold text-on-surface font-headline-lg tracking-tight">${stockData.price}</span>
+          <span class="text-sm font-medium text-on-surface-variant/50 font-body-md">${stockData.currency || ''}</span>
+        </div>
+        <div class="flex items-center gap-3 mt-2">
+          <div class="flex items-center gap-1 px-3 py-1 rounded ${changeBg} border">
+            <span class="material-symbols-outlined ${changeColor} text-[16px]">${arrowIcon}</span>
+            <span class="text-xs font-bold ${changeColor} font-label-caps">${stockData.change_pct || '0%'}</span>
+          </div>
+          <span class="text-xs font-semibold ${changeColor} font-body-md">${stockData.change_val || '0'} today</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="relative mb-2" id="${widgetId}-chart-wrap">
+      <div class="absolute hidden items-center gap-2 px-3 py-2 rounded-xl glass-panel border border-lime-spark/20 text-xs font-semibold text-on-surface pointer-events-none z-20 whitespace-nowrap font-body-md"
+           id="${widgetId}-tooltip" style="transform: translate(-50%, -120%);">
+        <span id="${widgetId}-tooltip-price">${stockData.price} ${stockData.currency || ''}</span>
+        <span class="text-on-surface-variant/40">·</span>
+        <span id="${widgetId}-tooltip-time" class="text-on-surface-variant/70">12:40</span>
+      </div>
+      <svg id="${widgetId}-svg" viewBox="0 0 760 180" class="w-full h-44 overflow-visible cursor-crosshair">
+        <defs>
+          <linearGradient id="${widgetId}-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${lineColor}" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="${lineColor}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <line x1="0" y1="20" x2="760" y2="20" stroke="${lineColor}" stroke-opacity="0.08" stroke-dasharray="4 4"/>
+        <line x1="0" y1="90" x2="760" y2="90" stroke="${lineColor}" stroke-opacity="0.08" stroke-dasharray="4 4"/>
+        <line x1="0" y1="160" x2="760" y2="160" stroke="${lineColor}" stroke-opacity="0.08" stroke-dasharray="4 4"/>
+        <path id="${widgetId}-area" fill="url(#${widgetId}-fill)" d=""/>
+        <path id="${widgetId}-line" fill="none" stroke="${lineColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d=""/>
+        <line id="${widgetId}-guide" x1="0" y1="0" x2="0" y2="180" stroke="${lineColor}" stroke-opacity="0.35" stroke-dasharray="2 2" class="hidden"/>
+        <circle id="${widgetId}-dot" r="5" fill="${lineColor}" stroke="#131313" stroke-width="2" class="hidden"/>
+      </svg>
+      <script>
+        (function() {
+          const startPrice = parseFloat(String("${stockData.open || stockData.price || '100'}").replace(/,/g, '')) || 100;
+          const currentPrice = parseFloat(String("${stockData.price || '105'}").replace(/,/g, '')) || 105;
+          const diff = currentPrice - startPrice;
+          const points = [];
+          for (let i = 0; i < 23; i++) {
+            points.push(startPrice + (diff * (i/23)) + (Math.random() - 0.5) * (startPrice * 0.02));
+          }
+          points.push(currentPrice);
+          const times = ["09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","","","","","","","","","",""];
+
+          const W = 760, H = 180;
+          const min = Math.min(...points), max = Math.max(...points);
+          const range = max - min === 0 ? 1 : max - min;
+          const xStep = W / (points.length - 1);
+          const yFor = v => H - ((v - min) / range) * (H - 40) - 20;
+
+          const coords = points.map((v, i) => [i * xStep, yFor(v)]);
+          const linePath = coords.map((c, i) => (i === 0 ? "M" : "L") + c[0].toFixed(1) + "," + c[1].toFixed(1)).join(" ");
+          const areaPath = linePath + \` L\${W},\${H} L0,\${H} Z\`;
+
+          document.getElementById("${widgetId}-line").setAttribute("d", linePath);
+          document.getElementById("${widgetId}-area").setAttribute("d", areaPath);
+
+          const svg = document.getElementById("${widgetId}-svg");
+          const dot = document.getElementById("${widgetId}-dot");
+          const guide = document.getElementById("${widgetId}-guide");
+          const tooltip = document.getElementById("${widgetId}-tooltip");
+          const tPrice = document.getElementById("${widgetId}-tooltip-price");
+          const tTime = document.getElementById("${widgetId}-tooltip-time");
+
+          function showAt(clientX) {
+            const rect = svg.getBoundingClientRect();
+            const relX = ((clientX - rect.left) / rect.width) * W;
+            let idx = Math.round(relX / xStep);
+            idx = Math.max(0, Math.min(points.length - 1, idx));
+            const [cx, cy] = coords[idx];
+            dot.setAttribute("cx", cx); dot.setAttribute("cy", cy);
+            guide.setAttribute("x1", cx); guide.setAttribute("x2", cx);
+            dot.classList.remove("hidden"); guide.classList.remove("hidden");
+            tPrice.textContent = points[idx].toLocaleString(undefined, {maximumFractionDigits: 2}) + " ${stockData.currency || ''}";
+            tTime.textContent = times[idx] || "LIVE";
+            tooltip.style.left = (cx / W) * 100 + "%";
+            tooltip.style.top = (cy / H) * 100 + "%";
+            tooltip.classList.remove("hidden"); tooltip.classList.add("flex");
+          }
+          function hide() {
+            dot.classList.add("hidden"); guide.classList.add("hidden"); tooltip.classList.add("hidden"); tooltip.classList.remove("flex");
+          }
+          svg.addEventListener("mousemove", e => showAt(e.clientX));
+          svg.addEventListener("mouseleave", hide);
+        })();
+      <\/script>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-4 gap-y-4 gap-x-4 mt-6 pt-6 border-t border-outline-variant/20">
+      <div>
+        <div class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest font-label-caps mb-1">Open</div>
+        <div class="text-sm font-semibold text-on-surface font-data-terminal">${stockData.open || 'N/A'}</div>
+      </div>
+      <div>
+        <div class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest font-label-caps mb-1">Mkt Cap</div>
+        <div class="text-sm font-semibold text-on-surface font-data-terminal">${stockData.mkt_cap || 'N/A'}</div>
+      </div>
+      <div>
+        <div class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest font-label-caps mb-1">P/E</div>
+        <div class="text-sm font-semibold text-on-surface font-data-terminal">${stockData.pe_ratio || stockData.pe || 'N/A'}</div>
+      </div>
+      <div>
+        <div class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest font-label-caps mb-1">52w High</div>
+        <div class="text-sm font-semibold text-on-surface font-data-terminal">${stockData.high_52 || 'N/A'}</div>
+      </div>
+      <div>
+        <div class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest font-label-caps mb-1">High</div>
+        <div class="text-sm font-semibold text-on-surface font-data-terminal">${stockData.high || 'N/A'}</div>
+      </div>
+      <div>
+        <div class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest font-label-caps mb-1">Low</div>
+        <div class="text-sm font-semibold text-on-surface font-data-terminal">${stockData.low || 'N/A'}</div>
+      </div>
+      <div>
+        <div class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest font-label-caps mb-1">52w Low</div>
+        <div class="text-sm font-semibold text-on-surface font-data-terminal">${stockData.low_52 || 'N/A'}</div>
+      </div>
+      <div>
+        <div class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest font-label-caps mb-1">Div Yield</div>
+        <div class="text-sm font-semibold text-on-surface font-data-terminal">${stockData.div_yield || stockData.div || 'N/A'}</div>
+      </div>
+    </div>
+
+    <!-- Source note -->
+    <div class="mt-4 pt-4 border-t border-outline-variant/10 flex items-center gap-2">
+      <div class="w-1.5 h-1.5 rounded-full bg-lime-spark animate-pulse"></div>
+      <span class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest font-label-caps">Data sourced from Yahoo Finance</span>
+    </div>
+
+    </div>
+  </div>
+</div>`;
+
+                const wrapperEl = document.createElement('div');
+                wrapperEl.innerHTML = widgetHtml;
+                chatStream.appendChild(wrapperEl);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                // Re-evaluate inline scripts for the chart
+                const scripts = wrapperEl.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+
+                currentAgentBox = null;
+            }
+            else if (data.type === 'tool_start') {
+                currentAgentBox = null;
+                markdownBuffer = "";
+                const toolLabel = data.tool_name.replace(/_/g, ' ');
+                updateProgress('🔧 ' + toolLabel);
+                appendLog('TOOL_START  ' + data.tool_name + '  input=' + JSON.stringify(data.tool_input || '').slice(0, 60), 'info');
+                const sysBox = addMessage('agent', `<i class="text-on-surface-variant/50">Running tool: ${data.tool_name}</i>`);
+                if (sysBox && sysBox.closest('.glass-panel')) {
+                    sysBox.closest('.glass-panel').style.opacity = '0.6';
+                }
+            }
+            else if (data.type === 'tool_end') {
+                appendLog('TOOL_END    ' + data.tool_name + '  → ' + String(data.tool_output || '').slice(0, 80), 'default');
+            }
+            else if (data.type === 'error') {
+                const cleanError = String(data.content || 'An unexpected error occurred.').replace('GraphRecursionError: ', '');
+                if (!currentAgentBox) currentAgentBox = addMessage('agent', '');
+                currentAgentBox.innerHTML = `<div class="p-3 bg-error/10 border border-error/20 rounded-lg text-error text-sm font-medium">⚠️ Error: ${cleanError}</div>`;
+                appendLog('ERROR: ' + data.content, 'error');
+                finishProgress();
+                eventSource.close();
+                chatInput.disabled = false;
+                chatSubmit.disabled = false;
+            }
+            else if (data.type === 'done') {
+                if (currentAgentBox) {
+                    try { enhanceTablesInElement(currentAgentBox); } catch(e) { console.error("Table enhance error:", e); }
+                }
+                finishProgress();
+                appendLog('DONE ─────────────────────────────', 'default');
+                eventSource.close();
+                chatInput.disabled = false;
+                chatSubmit.disabled = false;
+                chatInput.focus();
+            }
+        };
+
+        eventSource.onerror = () => {
+            eventSource.close();
+            finishProgress();
+            appendLog('SSE connection lost.', 'error');
+            chatInput.disabled = false;
+            chatSubmit.disabled = false;
+        };
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // 5. MICRO-INTERACTIONS — Delegated Specular Highlights for ALL panels
+    // ═══════════════════════════════════════════════════════════════
+    document.addEventListener('mousemove', e => {
+        const panel = e.target.closest('.glass-panel');
+        if (panel) {
+            const rect = panel.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                panel.style.setProperty('--x', `${x}%`);
+                panel.style.setProperty('--y', `${y}%`);
+            }
+        }
+    });
+</script>
+
+<!-- Fullscreen Table Institutional Modal -->
+<div id="table-fullscreen-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/85 backdrop-blur-md p-4 md:p-8">
+  <div class="relative w-full h-full max-w-7xl max-h-[90vh] flex flex-col bg-[#161615] border border-outline-variant/30 rounded-2xl shadow-2xl overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-4 bg-[#1e1e1d] border-b border-outline-variant/20">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-lime-spark/15 border border-lime-spark/30 flex items-center justify-center">
+          <span class="material-symbols-outlined text-lime-spark text-[18px]">table_chart</span>
+        </div>
+        <div>
+          <h3 class="text-on-surface font-bold text-base font-headline-md">Institutional Data Explorer · FULLSCREEN</h3>
+          <p class="text-[10px] text-on-surface-variant/70 uppercase tracking-wider">Dynamic Multi-Column Table Inspection</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-lime-spark/90 font-mono px-3 py-1 rounded-full bg-lime-spark/10 border border-lime-spark/20">All Columns Expanded</span>
+        <button type="button" onclick="closeFullscreenTable()" class="w-8 h-8 rounded-full bg-surface-variant/30 hover:bg-surface-variant/60 flex items-center justify-center text-on-surface transition-all">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+    </div>
+    <div id="fullscreen-table-container" class="flex-1 overflow-auto p-6 bg-[#131313] custom-scrollbar">
+    </div>
+    <div class="px-6 py-3 bg-[#1e1e1d] border-t border-outline-variant/20 flex items-center justify-between text-xs text-on-surface-variant/60 font-mono">
+      <span>Tip: Click any column header to sort rows ascending/descending.</span>
+      <button type="button" onclick="closeFullscreenTable()" class="px-4 py-1.5 rounded-lg bg-surface-variant/40 hover:bg-surface-variant/60 text-on-surface transition-all">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentTableSort = {};
+
+function sortTableColumn(tableId, colIdx) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    const tbody = table.querySelector('tbody') || table;
+    const rows = Array.from(tbody.querySelectorAll('tr:not(:first-child)'));
+    if (!rows.length) return;
+
+    const isAsc = !currentTableSort[tableId + '_' + colIdx];
+    currentTableSort[tableId + '_' + colIdx] = isAsc;
+
+    rows.sort((a, b) => {
+        const cellA = a.children[colIdx]?.textContent.trim() || '';
+        const cellB = b.children[colIdx]?.textContent.trim() || '';
+        const numA = parseFloat(cellA.replace(/[^0-9.-]+/g, ''));
+        const numB = parseFloat(cellB.replace(/[^0-9.-]+/g, ''));
+        if (!isNaN(numA) && !isNaN(numB)) {
+            return isAsc ? numA - numB : numB - numA;
+        }
+        return isAsc ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+    });
+
+    rows.forEach(r => tbody.appendChild(r));
+}
+
+function toggleTableColumn(tableId, colIdx, isVisible) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    table.querySelectorAll('tr').forEach(tr => {
+        const cell = tr.children[colIdx];
+        if (cell) {
+            cell.style.display = isVisible ? '' : 'none';
+        }
+    });
+}
+
+function expandTableFullscreen(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    const modal = document.getElementById('table-fullscreen-modal');
+    const container = document.getElementById('fullscreen-table-container');
+    if (modal && container) {
+        container.innerHTML = '';
+        const cloned = table.cloneNode(true);
+        cloned.id = tableId + '_fullscreen';
+        cloned.classList.add('w-full', 'text-left', 'border-collapse', 'text-sm');
+        container.appendChild(cloned);
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeFullscreenTable() {
+    const modal = document.getElementById('table-fullscreen-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function enhanceTablesInElement(container) {
+    if (!container) return;
+    const tables = container.querySelectorAll('table:not([data-enhanced])');
+    tables.forEach((table, tableIndex) => {
+        table.setAttribute('data-enhanced', 'true');
+        const tableId = 'smart_table_' + Math.random().toString(36).substr(2, 9);
+        table.id = tableId;
+        table.classList.add('w-full', 'text-left', 'border-collapse', 'text-sm', 'whitespace-nowrap');
+
+        const headers = [];
+        table.querySelectorAll('thead th, tr:first-child th').forEach((th, colIdx) => {
+            headers.push(th.textContent.trim());
+            th.classList.add('cursor-pointer', 'select-none', 'hover:bg-lime-spark/20', 'transition-colors', 'py-3', 'px-4', 'font-mono', 'text-[11px]', 'text-lime-spark', 'uppercase', 'tracking-wider', 'border-b', 'border-outline-variant/30');
+            th.title = "Click to sort ascending/descending";
+            th.setAttribute('data-col-idx', colIdx);
+            th.addEventListener('click', () => sortTableColumn(tableId, colIdx));
+        });
+
+        table.querySelectorAll('tr').forEach(tr => {
+            const firstCell = tr.querySelector('th:first-child, td:first-child');
+            if (firstCell) {
+                firstCell.classList.add('sticky', 'left-0', 'bg-[#1b1b1b]', 'z-10', 'font-bold', 'border-r', 'border-outline-variant/20');
+            }
+            tr.querySelectorAll('td').forEach(td => {
+                td.classList.add('py-2.5', 'px-4', 'border-b', 'border-outline-variant/10', 'text-on-surface');
+            });
+        });
+
+        const rowCount = table.querySelectorAll('tbody tr, tr:not(:first-child)').length;
+        const toolbar = document.createElement('div');
+        toolbar.className = 'flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#131313]/90 border-b border-outline-variant/20 rounded-t-xl';
+        
+        let colToggleButtons = headers.map((h, idx) => `
+            <label class="flex items-center gap-1.5 px-2 py-1 rounded bg-surface-variant/20 hover:bg-surface-variant/40 cursor-pointer text-[11px] text-on-surface border border-outline-variant/20">
+                <input type="checkbox" checked onchange="toggleTableColumn('${tableId}', ${idx}, this.checked)" class="accent-lime-spark rounded-sm w-3 h-3">
+                <span>${h}</span>
+            </label>
+        `).join('');
+
+        toolbar.innerHTML = `
+            <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-lime-spark/10 text-lime-spark font-bold text-[10px] uppercase tracking-wider border border-lime-spark/20">📊 INSTITUTIONAL DATA</span>
+                <span class="text-xs text-on-surface-variant/70 font-mono">${rowCount} row(s) · <span class="text-lime-spark/80">Scroll horizontally or toggle columns</span></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="relative group">
+                    <button type="button" onclick="const menu = this.nextElementSibling; menu.classList.toggle('hidden');" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-variant/30 hover:bg-surface-variant/50 text-xs font-bold text-on-surface border border-outline-variant/20 transition-all">
+                        <span class="material-symbols-outlined text-[14px]">visibility</span>
+                        <span>Columns (${headers.length})</span>
+                    </button>
+                    <div class="hidden absolute right-0 mt-1 w-48 p-2 bg-[#1e1e1d] border border-outline-variant/30 rounded-xl shadow-2xl z-50 flex flex-col gap-1 max-h-60 overflow-y-auto">
+                        <div class="text-[10px] font-bold text-on-surface-variant/60 uppercase px-1 pb-1 border-b border-outline-variant/20">Toggle Columns</div>
+                        ${colToggleButtons}
+                    </div>
+                </div>
+                <button type="button" onclick="expandTableFullscreen('${tableId}')" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-lime-spark/10 hover:bg-lime-spark/20 text-lime-spark text-xs font-bold border border-lime-spark/20 transition-all">
+                    <span class="material-symbols-outlined text-[14px]">fullscreen</span>
+                    <span>Maximize</span>
+                </button>
+            </div>
+        `;
+
+        const scrollWrap = document.createElement('div');
+        scrollWrap.className = 'w-full overflow-x-auto custom-scrollbar bg-[#1b1b1b]/80';
+        
+        const cardWrap = document.createElement('div');
+        cardWrap.className = 'my-4 w-full border border-outline-variant/30 rounded-xl overflow-hidden shadow-2xl bg-[#1b1b1b]/60';
+
+        table.parentNode.insertBefore(cardWrap, table);
+        cardWrap.appendChild(toolbar);
+        cardWrap.appendChild(scrollWrap);
+        scrollWrap.appendChild(table);
+    });
+}
+</script>
+
+<!-- TOP 20 SMART DSA DATABASE QUERIES MODAL -->
+<div id="dsa-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-md p-6">
+  <div class="glass-panel w-full max-w-4xl max-h-[85vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl border border-lime-spark/20">
+    
+    <!-- Modal Header -->
+    <div class="px-6 py-4 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container/50">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-lime-spark/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-lime-spark text-sm">database</span>
+        </div>
+        <div>
+          <h2 class="font-headline-md text-base font-bold text-on-surface">Smart DSA & Analytics Query Library</h2>
+          <p class="font-data-terminal text-[11px] text-on-surface-variant">Top 20 SQL Window Functions, Gaps & Islands & Statistical Outliers</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeDsaModal()" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container-high text-on-surface-variant transition-colors">
+        <span class="material-symbols-outlined text-lg">close</span>
+      </button>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="flex border-b border-outline-variant/20 px-6 pt-3 gap-2 bg-surface/40">
+      <button type="button" id="btn-rankings" onclick="switchDsaTab('rankings')" class="dsa-tab-btn px-4 py-2 rounded-t-lg bg-lime-spark text-on-tertiary font-semibold text-xs transition-all">
+        🏆 Rankings & Quantiles (1-5)
+      </button>
+      <button type="button" id="btn-averages" onclick="switchDsaTab('averages')" class="dsa-tab-btn px-4 py-2 rounded-t-lg bg-surface-container text-on-surface-variant text-xs transition-all">
+        📈 Moving Averages & VWAP (6-10)
+      </button>
+      <button type="button" id="btn-anomalies" onclick="switchDsaTab('anomalies')" class="dsa-tab-btn px-4 py-2 rounded-t-lg bg-surface-container text-on-surface-variant text-xs transition-all">
+        🚨 Anomalies & Streaks (11-15)
+      </button>
+      <button type="button" id="btn-correlations" onclick="switchDsaTab('correlations')" class="dsa-tab-btn px-4 py-2 rounded-t-lg bg-surface-container text-on-surface-variant text-xs transition-all">
+        🔗 Correlations & Trees (16-20)
+      </button>
+    </div>
+
+    <!-- Modal Body (Tab Contents) -->
+    <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4">
+      
+      <!-- TAB 1: RANKINGS & QUANTILES -->
+      <div id="content-rankings" class="dsa-tab-content grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div onclick="runSmartQuery('Find the Nth highest stock price without skipping ranks on ties')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">1. DENSE_RANK()</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Find the Nth highest stock price without skipping ranks on ties</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">SELECT DENSE_RANK() OVER (ORDER BY last_price DESC)</p>
+        </div>
+
+        <div onclick="runSmartQuery('Show the Top 3 stocks by trading volume for every exchange')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">2. PARTITION TOP-K</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Show the Top 3 stocks by trading volume for every exchange</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">ROW_NUMBER() OVER (PARTITION BY exchange ORDER BY volume DESC) &lt;= 3</p>
+        </div>
+
+        <div onclick="runSmartQuery('Calculate the median and 95th percentile price per ticker')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">3. PERCENTILE_CONT</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Calculate the median and 95th percentile price per ticker</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY last_price)</p>
+        </div>
+
+        <div onclick="runSmartQuery('Get session opening and closing prices within window partitions')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">4. FIRST_VALUE / LAST_VALUE</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Get session opening and closing prices within window partitions</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">FIRST_VALUE(last_price) OVER w / LAST_VALUE(...) OVER w</p>
+        </div>
+
+        <div onclick="runSmartQuery('Deduplicate stock snapshots keeping only the latest record')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">5. DEDUPLICATION</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Deduplicate stock snapshots keeping only the latest record</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY last_updated DESC) = 1</p>
+        </div>
+      </div>
+
+      <!-- TAB 2: MOVING AVERAGES & VWAP -->
+      <div id="content-averages" class="dsa-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div onclick="runSmartQuery('Calculate 20-period simple moving average across price snapshots')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">6. SLIDING WINDOW SMA</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Calculate 20-period simple moving average across price snapshots</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">AVG(last_price) OVER (ROWS BETWEEN 19 PRECEDING AND CURRENT ROW)</p>
+        </div>
+
+        <div onclick="runSmartQuery('Compute Volume Weighted Average Price (VWAP) for AAPL')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">7. VWAP ALGORITHM</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Compute Volume Weighted Average Price (VWAP) for AAPL</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">SUM(last_price * volume) OVER w / NULLIF(SUM(volume) OVER w, 0)</p>
+        </div>
+
+        <div onclick="runSmartQuery('Calculate 14-period Relative Strength Index (RSI) momentum')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">8. RSI-14 MOMENTUM</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Calculate 14-period Relative Strength Index (RSI) momentum</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">RSI = 100 - (100 / (1 + AvgGain / AvgLoss))</p>
+        </div>
+
+        <div onclick="runSmartQuery('Compute cumulative running total of traded volume throughout the day')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">9. CUMULATIVE RUNNING TOTAL</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Compute cumulative running total of traded volume throughout the day</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">SUM(volume) OVER (PARTITION BY ticker ORDER BY last_updated ROWS UNBOUNDED PRECEDING)</p>
+        </div>
+
+        <div onclick="runSmartQuery('Calculate bar-over-bar percentage price returns')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">10. LAG() PERCENTAGE RETURNS</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Calculate bar-over-bar percentage price returns</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">(last_price - LAG(last_price) OVER w) / NULLIF(LAG(last_price) OVER w, 0)</p>
+        </div>
+      </div>
+
+      <!-- TAB 3: ANOMALIES & STREAKS -->
+      <div id="content-anomalies" class="dsa-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div onclick="runSmartQuery('Flag statistical price anomalies where Z-score > 2.0 standard deviations')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">11. ROLLING Z-SCORE</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Flag statistical price anomalies where Z-score &gt; 2.0 standard deviations</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">ABS((last_price - mean) / NULLIF(stdev, 0)) &gt; 2.0</p>
+        </div>
+
+        <div onclick="runSmartQuery('Find longest consecutive streak of bullish bars per ticker')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">12. GAPS & ISLANDS</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Find longest consecutive streak of bullish bars per ticker</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">ROW_NUMBER() OVER (...) - ROW_NUMBER() OVER (PARTITION BY ticker, is_up ...)</p>
+        </div>
+
+        <div onclick="runSmartQuery('Identify local price peaks and troughs across snapshots')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">13. LOCAL EXTREMA</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Identify local price peaks and troughs across snapshots</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">LAG(last_price) &lt; last_price AND LEAD(last_price) &lt; last_price</p>
+        </div>
+
+        <div onclick="runSmartQuery('Detect stale feeds where price remained identical for >5 updates')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">14. ZERO-VARIANCE ISLANDS</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Detect stale feeds where price remained identical for &gt;5 updates</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">GROUP BY consecutive identical values HAVING COUNT(*) &gt;= 5</p>
+        </div>
+
+        <div onclick="runSmartQuery('Detect V-shape momentum reversals (spike followed by immediate drop)')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">15. V-SHAPE REVERSALS</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Detect V-shape momentum reversals (spike followed by immediate drop)</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">return_t1 &gt; +5% AND return_t2 &lt; -5%</p>
+        </div>
+      </div>
+
+      <!-- TAB 4: CORRELATIONS & TREES -->
+      <div id="content-correlations" class="dsa-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div onclick="runSmartQuery('Find pairs of stocks with identical positive moves at the same timestamp')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">16. PAIRWISE SELF-JOIN</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Find pairs of stocks with identical positive moves at the same timestamp</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">JOIN stocks a ON a.time = b.time AND a.ticker &lt; b.ticker WHERE ...</p>
+        </div>
+
+        <div onclick="runSmartQuery('Detect time-series feed gaps > 15 minutes between updates')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">17. LAG() TIME-GAP DETECTION</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Detect time-series feed gaps &gt; 15 minutes between updates</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">EXTRACT(EPOCH FROM (last_updated - LAG(last_updated))) &gt; 900</p>
+        </div>
+
+        <div onclick="runSmartQuery('Pivot quarterly average price per ticker into separate columns')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">18. CONDITIONAL AGGREGATION PIVOT</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Pivot quarterly average price per ticker into separate columns</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">AVG(CASE WHEN EXTRACT(QUARTER ...) = 1 THEN price END)</p>
+        </div>
+
+        <div onclick="runSmartQuery('Aggregate market cap across parent-child sector hierarchies')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">19. RECURSIVE SECTOR TREE</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Aggregate market cap across parent-child sector hierarchies</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">WITH RECURSIVE SectorTree AS (...) SELECT root_id, SUM(val)</p>
+        </div>
+
+        <div onclick="runSmartQuery('Check if two scheduled trading halt windows overlap in time')" class="p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant/30 hover:border-lime-spark/50 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-data-terminal text-[10px] bg-lime-spark/20 text-lime-spark px-2 py-0.5 rounded">20. INTERVAL OVERLAP</span>
+              <span class="text-xs text-on-surface-variant group-hover:text-lime-spark transition-colors">Run →</span>
+            </div>
+            <p class="text-sm font-medium text-on-surface">Check if two scheduled trading halt windows overlap in time</p>
+          </div>
+          <p class="text-xs text-on-surface-variant/70 font-data-terminal">(StartA &lt;= EndB) AND (EndA &gt;= StartB)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openDsaModal() {
+    const modal = document.getElementById('dsa-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+function closeDsaModal() {
+    const modal = document.getElementById('dsa-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+function runSmartQuery(queryText) {
+    closeDsaModal();
+    const chatInput = document.getElementById('chat-input');
+    const chatForm = document.getElementById('chat-form');
+    if (chatInput && chatForm) {
+        chatInput.value = queryText;
+        chatForm.requestSubmit();
+    }
+}
+function switchDsaTab(tabId) {
+    document.querySelectorAll('.dsa-tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.dsa-tab-btn').forEach(el => {
+        el.classList.remove('bg-lime-spark', 'text-on-tertiary', 'font-semibold');
+        el.classList.add('bg-surface-container', 'text-on-surface-variant');
+    });
+    const activeContent = document.getElementById('content-' + tabId);
+    if (activeContent) activeContent.classList.remove('hidden');
+    const btn = document.getElementById('btn-' + tabId);
+    if (btn) {
+        btn.classList.remove('bg-surface-container', 'text-on-surface-variant');
+        btn.classList.add('bg-lime-spark', 'text-on-tertiary', 'font-semibold');
+    }
+}
+document.addEventListener('DOMContentLoaded', () => { enhanceTablesInElement(document.body); });
+</script>
+</body></html>

@@ -1,0 +1,56 @@
+# ==============================================================================
+# Enterprise Production .gitignore — MarketPulse AI
+# Prevents secret leakage, virtual environments, DB files, and cache commit
+# ==============================================================================
+
+# --- Environment Variables & Secrets ---
+.env
+.env.*
+*.env
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.*
+
+# --- Python Virtual Environments ---
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Python Cache & Bytecode ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.cover
+
+# --- Databases & Persistent Volume Data ---
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+*.rdb
+
+# --- Logs & Debug Outputs ---
+*.log
+logs/
+.system_generated/
+
+# --- IDE & Agent Configuration ---
+.vscode/
+.idea/
+.agents/
+.kiro/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
