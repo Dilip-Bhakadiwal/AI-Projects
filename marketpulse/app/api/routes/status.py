@@ -28,9 +28,14 @@ async def get_status():
 
         db_status = "ok"
     except Exception as e:
+        err_str = str(e)
+        if "Errno -2" in err_str or "111" in err_str or "Connection refused" in err_str or "shut down" in err_str:
+            db_msg = "Aiven Free-Tier DB Sleeping (Auto-wakes on request)"
+        else:
+            db_msg = f"error: {err_str}"
         return {
             "status": "degraded",
-            "database": f"error: {str(e)}",
+            "database": db_msg,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 

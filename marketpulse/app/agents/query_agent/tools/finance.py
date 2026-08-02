@@ -60,6 +60,29 @@ def _build_result_text(ticker: str, resolved: str, name: str, price: float,
     return summary, {}
 
 
+SYMBOL_ALIASES = {
+    "ZOMATO": "ETERNAL.NS",
+    "ZOMATO.NS": "ETERNAL.NS",
+    "ZOMATO.BO": "ETERNAL.BO",
+    "ETERNAL": "ETERNAL.NS",
+    "SWIGGY": "SWIGGY.NS",
+    "RELIANCE": "RELIANCE.NS",
+    "TCS": "TCS.NS",
+    "INFY": "INFY.NS",
+    "HDFCBANK": "HDFCBANK.NS",
+    "ICICIBANK": "ICICIBANK.NS",
+    "SBIN": "SBIN.NS",
+    "BHARTIARTL": "BHARTIARTL.NS",
+    "ITC": "ITC.NS",
+    "WIPRO": "WIPRO.NS",
+    "HINDUNILVR": "HINDUNILVR.NS",
+    "PAYTM": "PAYTM.NS",
+    "NYKAA": "NYKAA.NS",
+    "TATAMOTORS": "TATAMOTORS.NS",
+    "TATASTEEL": "TATASTEEL.NS",
+}
+
+
 @tool(response_format="content_and_artifact")
 def get_financial_data(ticker: str, include_widget: bool = False) -> tuple[str, dict]:
     """
@@ -70,83 +93,90 @@ def get_financial_data(ticker: str, include_widget: bool = False) -> tuple[str, 
         include_widget: MUST be True when user says 'show card', 'show widget', 'show chart', 'full report', or 'show me a card for X'. Defaults to False for simple price questions.
     """
     logger.info("tool_get_financial_data", ticker=ticker, widget_requested=include_widget)
-    symbol = ticker.strip().upper()
+    raw_symbol = ticker.strip().upper()
+    symbols_to_try = []
+    if raw_symbol in SYMBOL_ALIASES:
+        symbols_to_try.append(SYMBOL_ALIASES[raw_symbol])
+    symbols_to_try.append(raw_symbol)
+    if "." not in raw_symbol and f"{raw_symbol}.NS" not in symbols_to_try:
+        symbols_to_try.extend([f"{raw_symbol}.NS", f"{raw_symbol}.BO"])
 
-    # ── Path 1: Full 7-stage web scraper pipeline (works locally) ──────────
-    try:
-        from app.services.stock_scraper import get_stock_snapshot_sync
-        snapshot = get_stock_snapshot_sync(symbol)
-        if snapshot and snapshot.get("last_price", 0.0) > 0:
-            return _build_result_text(
-                ticker=ticker,
-                resolved=snapshot["ticker"],
-                name=snapshot.get("company_name", symbol),
-                price=snapshot["last_price"],
-                prev=snapshot.get("previous_close"),
-                change_val=snapshot.get("change_val"),
-                change_pct=snapshot.get("change_pct"),
-                currency=snapshot.get("currency", "USD"),
-                snapshot=snapshot,
-                include_widget=include_widget,
-            )
-        logger.warning("scraper_returned_zero", ticker=symbol)
-    except Exception as e:
-        logger.warning("scraper_pipeline_failed", ticker=symbol, error=str(e))
+    for symbol in symbols_to_try:
+        # ── Path 1: Full 7-stage web scraper pipeline (works locally) ──────────
+        try:
+            from app.services.stock_scraper import get_stock_snapshot_sync
+            snapshot = get_stock_snapshot_sync(symbol)
+            if snapshot and snapshot.get("last_price", 0.0) > 0:
+                return _build_result_text(
+                    ticker=ticker,
+                    resolved=snapshot["ticker"],
+                    name=snapshot.get("company_name", symbol),
+                    price=snapshot["last_price"],
+                    prev=snapshot.get("previous_close"),
+                    change_val=snapshot.get("change_val"),
+                    change_pct=snapshot.get("change_pct"),
+                    currency=snapshot.get("currency", "USD"),
+                    snapshot=snapshot,
+                    include_widget=include_widget,
+                )
+            logger.warning("scraper_returned_zero", ticker=symbol)
+        except Exception as e:
+            logger.warning("scraper_pipeline_failed", ticker=symbol, error=str(e))
 
-    # ── Path 2: Direct yfinance (fast_info) ────────────────────────────────
-    try:
-        fi = yf.Ticker(symbol).fast_info
-        price = getattr(fi, "last_price", None)
-        if price and float(price) > 0:
-            prev = getattr(fi, "previous_close", None)
-            diff = round(float(price) - float(prev), 4) if prev else 0.0
-            pct  = round(diff / float(prev) * 100, 4) if prev else 0.0
-            logger.info("yfinance_fast_info_success", ticker=symbol, price=price)
-            return _build_result_text(
-                ticker=ticker, resolved=symbol, name=symbol,
-                price=float(price), prev=float(prev) if prev else None,
-                change_val=diff, change_pct=pct,
-                currency=getattr(fi, "currency", "USD") or "USD",
-                snapshot=None, include_widget=include_widget,
-            )
-    except Exception as e:
-        logger.warning("yfinance_fast_info_failed", ticker=symbol, error=str(e))
+        # ── Path 2: Direct yfinance (fast_info) ────────────────────────────────
+        try:
+            fi = yf.Ticker(symbol).fast_info
+            price = getattr(fi, "last_price", None)
+            if price and float(price) > 0:
+                prev = getattr(fi, "previous_close", None)
+                diff = round(float(price) - float(prev), 4) if prev else 0.0
+                pct  = round(diff / float(prev) * 100, 4) if prev else 0.0
+                logger.info("yfinance_fast_info_success", ticker=symbol, price=price)
+                return _build_result_text(
+                    ticker=ticker, resolved=symbol, name=symbol,
+                    price=float(price), prev=float(prev) if prev else None,
+                    change_val=diff, change_pct=pct,
+                    currency=getattr(fi, "currency", "USD") or "USD",
+                    snapshot=None, include_widget=include_widget,
+                )
+        except Exception as e:
+            logger.warning("yfinance_fast_info_failed", ticker=symbol, error=str(e))
 
-    # ── Path 3: Cloud-friendly direct REST fallback (Render-safe) ──────────
-    try:
-        from app.services.price_fallback import fetch_price_cloud
-        fb = fetch_price_cloud(symbol)
-        if fb and fb.get("price", 0.0) > 0:
-            logger.info("price_fallback_used", ticker=symbol, source=fb.get("source"))
-            return _build_result_text(
-                ticker=ticker, resolved=symbol,
-                name=fb.get("name", symbol),
-                price=float(fb["price"]),
-                prev=fb.get("prev_close"),
-                change_val=fb.get("change_val"),
-                change_pct=fb.get("change_pct"),
-                currency=fb.get("currency", "USD"),
-                snapshot={
-                    "exchange": fb.get("exchange", ""),
-                    "open_price": fb.get("open_price"),
-                    "day_high": fb.get("day_high"),
-                    "day_low": fb.get("day_low"),
-                    "market_cap": fb.get("market_cap"),
-                    "pe_ratio": fb.get("pe_ratio"),
-                    "high_52week": None,
-                    "low_52week": None,
-                    "dividend_yield": None,
-                },
-                include_widget=include_widget,
-            )
-    except Exception as e:
-        logger.warning("price_fallback_failed", ticker=symbol, error=str(e))
+        # ── Path 3: Cloud-friendly direct REST fallback (Render-safe) ──────────
+        try:
+            from app.services.price_fallback import fetch_price_cloud
+            fb = fetch_price_cloud(symbol)
+            if fb and fb.get("price", 0.0) > 0:
+                logger.info("price_fallback_used", ticker=symbol, source=fb.get("source"))
+                return _build_result_text(
+                    ticker=ticker, resolved=symbol,
+                    name=fb.get("name", symbol),
+                    price=float(fb["price"]),
+                    prev=fb.get("prev_close"),
+                    change_val=fb.get("change_val"),
+                    change_pct=fb.get("change_pct"),
+                    currency=fb.get("currency", "USD"),
+                    snapshot={
+                        "exchange": fb.get("exchange", ""),
+                        "open_price": fb.get("open_price"),
+                        "day_high": fb.get("day_high"),
+                        "day_low": fb.get("day_low"),
+                        "market_cap": fb.get("market_cap"),
+                        "pe_ratio": fb.get("pe_ratio"),
+                        "high_52week": None,
+                        "low_52week": None,
+                        "dividend_yield": None,
+                    },
+                    include_widget=include_widget,
+                )
+        except Exception as e:
+            logger.warning("price_fallback_failed", ticker=symbol, error=str(e))
 
     # ── All paths failed ───────────────────────────────────────────────────
     return (
         f"TOOL_FAILURE: Could not retrieve live stock data for '{ticker}' from any source. "
         f"INSTRUCTION: Do NOT call get_financial_data again. Answer the user directly explaining "
         f"that '{ticker}' market data is temporarily unavailable, and suggest they check "
-        f"Yahoo Finance (https://finance.yahoo.com/quote/{symbol}/) directly.",
+        f"Yahoo Finance (https://finance.yahoo.com/quote/{raw_symbol}/) directly.",
         {}
     )

@@ -20,9 +20,15 @@ async def view_portfolio_table() -> tuple[str, str]:
     Returns a formatted Markdown table of the stock portfolio.
     """
     logger.info("tool_view_portfolio_table")
-    async with AsyncSessionLocal() as session:
-        result = await session.execute(select(Stock))
-        stocks = result.scalars().all()
+    try:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(Stock))
+            stocks = result.scalars().all()
+    except Exception as e:
+        err = str(e)
+        if "Errno -2" in err or "111" in err or "Connection refused" in err or "shut down" in err:
+            return "DATABASE_SLEEPING: The Aiven Free-Tier PostgreSQL database is asleep due to inactivity. It automatically wakes up on connection—please retry in 10 seconds.", ""
+        return f"Database Error: {err}", ""
         
     if not stocks:
         return "No stocks tracked yet. Use add_stock to add one.", ""
@@ -87,4 +93,6 @@ async def query_database(sql_query: str) -> tuple[str, str]:
                 )
         except Exception as e:
             err = str(e).split("\n")[0]
+            if "Errno -2" in err or "111" in err or "Connection refused" in err or "shut down" in err:
+                return "DATABASE_SLEEPING: The Aiven Free-Tier PostgreSQL database is asleep due to inactivity. It automatically wakes up on connection—please retry in 10 seconds.", ""
             return f"SQL Error: {err}", ""
