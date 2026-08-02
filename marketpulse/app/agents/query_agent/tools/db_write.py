@@ -154,13 +154,17 @@ async def add_stock(ticker: str) -> str:
 
 
 @tool
-async def remove_stock(ticker: str) -> str:
+async def remove_stock(ticker: str, confirm: bool = False) -> str:
     """
     Remove a stock from the tracking database.
-    Use this when the user asks to 'delete', 'remove', or 'stop tracking' a stock.
+    DESTRUCTIVE ACTION: Requires explicit user confirmation. Set confirm=True ONLY if the user has explicitly verified they want to delete this stock.
+    If confirm=False, returns a confirmation prompt requesting user verification before deleting.
     """
     ticker = ticker.upper().strip()
-    logger.info("tool_remove_stock", ticker=ticker)
+    logger.info("tool_remove_stock", ticker=ticker, confirm=confirm)
+
+    if not confirm:
+        return f"⚠️ DESTRUCTIVE ACTION CONFIRMATION REQUIRED: Please confirm with the user before permanently deleting '{ticker}' from the portfolio database. Call remove_stock(ticker='{ticker}', confirm=True) only after explicit user confirmation."
 
     async with AsyncSessionLocal() as session:
         stock = await session.get(Stock, ticker)

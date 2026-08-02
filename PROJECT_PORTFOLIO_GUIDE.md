@@ -92,12 +92,14 @@ graph TD
 | **PostgreSQL 16** | Relational DB | Enterprise-grade SQL database supporting complex analytic window functions (`DENSE_RANK`, `ROW_NUMBER`, `SUM() OVER()`, `PERCENTILE_CONT`). |
 | **Server-Sent Events (SSE)** | Streaming API | Zero-overhead, unidirectional HTTP streaming protocol sending real-time progress (`tool_start`, `tool_end`, `widget`, `token`, `error`) to client browsers. |
 | **Web Scraper Pipeline** (`requests`, `yfinance`, `BeautifulSoup4`) | Data Ingestion | Multi-stage financial data harvester with automatic failover across 4 public financial data APIs and Indian stock exchange screeners. |
-| **Pytest & AnyIO** (`pytest`, `anyio`) | Automated Testing | Comprehensive unit and regression test suite (30 tests) validating AST guardrails, concurrency pool isolation, currency normalization, DSA SQL queries, statistical engine accuracy, and scraper schema invariants. |
+| **Pytest & AnyIO** (`pytest`, `anyio`) | Automated Testing | Comprehensive unit and regression test suite (31 tests) validating AST guardrails, write confirmation, concurrency pool isolation, currency normalization, DSA SQL queries, statistical engine accuracy, and scraper schema invariants. |
 | **Structlog** (`structlog`) | Observability | Structured JSON logging with correlation IDs, method/path tracking, and error-stack recording for production debugging. |
 | **Vanilla JS & Glassmorphism CSS** | Frontend UI | Custom-engineered institutional dark-mode terminal with dynamic table horizontal scroll, sticky first-column headers, interactive column visibility togglers, clickable column sorting, and fullscreen modal inspection. |
 | **Render Cloud Platform** | Cloud Hosting | Live containerized Python runtime hosting (`render.yaml` + `Procfile`) with multi-path cloud price fallback (`price_fallback.py`, randomized User-Agents) that bypasses data-center IP blocks. |
 | **Aiven Managed PostgreSQL 16** | Cloud Database | Enterprise cloud PostgreSQL database (`console.aiven.io`) with SSL/TLS encryption (`ssl=require`), automatic asyncpg connection string normalization, and robust pool concurrency. |
-| **Python AST Security (`ast`)** | DevSecOps / Guardrails | Syntactic Abstract Syntax Tree parser (`sql_guard.py`) inspecting LLM-generated SQL before execution to block destructive queries (`DROP`, `DELETE`, `UPDATE`, stacked queries) and prevent prompt injection. |
+| **Python AST Security (`ast`)** | Destructive Query Blocking | Syntactic Abstract Syntax Tree parser (`sql_guard.py`) inspecting LLM-generated SQL before execution to block destructive queries (`DROP`, `DELETE`, `UPDATE`, stacked queries) and clamp unbounded `LIMIT` clauses. |
+| **Prompt Injection Defense** | Web Security / Prompting | All scraped web content and search results are wrapped in `<untrusted_external_data>` XML boundaries with system prompt rules (`UNTRUSTED DATA GUARDRAIL`) instructing the agent to ignore adversarial commands embedded in webpages. |
+| **Write Tool Confirmation** | Human-In-The-Loop Safety | Destructive portfolio write tools (`remove_stock`) require explicit confirmation (`confirm=True`) to prevent autonomous or prompt-injected deletions. |
 | **GitHub CI/CD & Secret Scanning** | Version Control | Production DevSecOps repository architecture with `.gitignore` secret isolation, GitHub Secret Scanning prevention, and continuous automated test verification. |
 
 ---
@@ -143,12 +145,17 @@ graph TD
     *   Implements **Randomized User-Agent Pooling** (`_UA_POOL`) and polite jittered delays (`0.3s–0.8s`) to bypass data-center bot detection.
     *   Configured **Aiven Managed PostgreSQL 16** (`console.aiven.io`) in the cloud with automatic URL normalization (`normalize_database_url` in `config.py`) converting `postgres://` to `postgresql+asyncpg://` and mapping `sslmode=require` to `ssl=require`.
 
-### F. SQL AST Security Guardrails & DevSecOps CI/CD
-*   **AST-Level Security Guardrails (`sql_guard.py`):**
+### F. Security Guardrails, Untrusted Data Defense & DevSecOps CI/CD
+*   **AST-Level Destructive SQL Blocking (`sql_guard.py`):**
     *   Rather than relying on vulnerable regex matching, we implemented a Python Abstract Syntax Tree (`ast` module) syntactic parser that inspects every LLM-generated SQL query before execution.
     *   Prohibits destructive operations (`DROP`, `DELETE`, `UPDATE`, `ALTER`, stacked queries, table mutations) at the parser boundary and enforces automatic `LIMIT` clamping on large SELECT queries.
+*   **Untrusted Web Content Sanitization & Prompt Injection Defense (`tools/web.py`):**
+    *   All external web search results and scraped content are wrapped in `<untrusted_external_data>` XML boundaries.
+    *   System prompt rules (`UNTRUSTED DATA GUARDRAIL`) instruct the agent to ignore any adversarial commands or prompt injection instructions embedded inside external webpages.
+*   **Human-In-The-Loop Write Tool Confirmation (`db_write.py`):**
+    *   Destructive portfolio write operations (`remove_stock`) require explicit confirmation (`confirm=True`), preventing autonomous or prompt-injected portfolio deletions.
 *   **DevSecOps & CI/CD Pipeline:**
-    *   Automated 30-Test Pytest Suite running across SQL AST guardrails, concurrency checkpointer isolation, and currency normalization invariants.
+    *   Automated 31-Test Pytest Suite running across SQL AST guardrails, write tool confirmation, concurrency checkpointer isolation, and currency normalization invariants.
     *   Strict `.gitignore` credential isolation and GitHub Secret Scanning prevention to eliminate leaked API keys in git commit history.
 
 ---
@@ -163,8 +170,8 @@ Use these quantified bullets under your **Projects** or **Work Experience** sect
     *   Engineered a **self-healing 7-stage multi-adapter data pipeline** (`yfinance` → Yahoo JSON API → Screener India → Stooq) with automatic currency normalization (`USD $`) and alias resolution (`COMMON_SYMBOL_ALIASES`), providing automatic failover recovery across public financial APIs and Indian exchange screeners.
     *   Implemented **Server-Sent Events (SSE)** streaming in **FastAPI** to deliver token-by-token LLM output and real-time tool execution traces to a custom reactive JavaScript UI with dynamic table sorting, column toggling, and sticky-column scrolling.
     *   Designed an **Algorithmic SQL Engine** using PostgreSQL window functions (`DENSE_RANK`, `VWAP`, Z-score anomaly detection), eliminating prompt-stuffing by computing rankings and time-series aggregates directly inside database queries rather than loading raw rows into LLM context windows.
-    *   Engineered a production DevSecOps CI/CD pipeline and deployed live to **Render** cloud hosting with an **Aiven Managed PostgreSQL** database, achieving a **100% test pass rate across 30 automated concurrency and security guardrail tests**.
-    *   Architected a **3-path cloud-safe price fallback engine** with randomized User-Agent pooling to bypass cloud data-center IP blocks, and implemented **Python AST-level SQL validation** to reject prompt injection and destructive database operations.
+    *   Engineered a production DevSecOps CI/CD pipeline and deployed live to **Render** cloud hosting with an **Aiven Managed PostgreSQL** database, achieving a **100% test pass rate across 31 automated concurrency and security guardrail tests**.
+    *   Architected a **3-path cloud-safe price fallback engine** with randomized User-Agent pooling to bypass cloud data-center IP blocks, and implemented **Python AST-level SQL validation** alongside **XML-framed prompt injection defense** and **human-in-the-loop write confirmation** for destructive operations.
 
 ### B. LinkedIn Project Showcase Post (Template)
 ```text
@@ -178,7 +185,7 @@ While basic RAG chatbots struggle with multi-step reasoning and messy APIs, I wa
 🔹 Algorithmic SQL Synthesis (No Brute Force): The agent dynamically compiles advanced PostgreSQL window queries (DENSE_RANK, VWAP, Z-Score anomaly detection) instead of stuffing raw rows into context windows.
 🔹 Zero-Hallucination FX Normalization: All global stocks (US NASDAQ & Indian NSE/BSE) are automatically normalized to USD ($) at the DB ingestion boundary for mathematical consistency.
 🔹 Real-Time Observability & SSE Streaming: Built a FastAPI Server-Sent Events gateway streaming token generation and tool execution events to a glassmorphic frontend equipped with dynamic JS Table Explorers (sticky columns, live sorting, column toggling, fullscreen modals).
-🔹 Complete Unit Testing: 18-test pytest suite covering currency invariants, SQL schema validation, and statistical engines.
+🔹 Complete Unit Testing: 31-test pytest suite covering currency invariants, AST SQL guardrails, write tool confirmation, and statistical engines.
 
 Check out the full architecture and code on GitHub! Let me know your thoughts on stateful agentic workflows below. 👇
 
@@ -221,13 +228,13 @@ Rather than making unverified marketing claims about latency or uptime, MarketPu
 
 ---
 
-## 7. The "Top 1% Career Roadmap" to July 2026
+## 7. Architecture Roadmap & Future Enhancements
 
-To guarantee you land a **$150,000–$250,000+ Agentic AI Engineer** role in **July 2026**, complete these 4 enhancements over the next few months to turn this project into an undisputed industry benchmark:
+To strengthen project maturity and scale further, these 4 architectural enhancements represent the roadmap for next-phase institutional hardening:
 
 ```markdown
-- [ ] 1. Docker & Kubernetes Containerization
-      - Add a multi-stage `Dockerfile` and `docker-compose.yml` that launches FastAPI, PostgreSQL 16, and a Redis instance with one command (`docker compose up --build`).
+- [x] 1. Docker Containerization & Orchestration (Completed)
+      - Implemented multi-stage `Dockerfile` and `docker-compose.yml` for FastAPI and PostgreSQL 16 containerization, deployed live on Render cloud runtime.
 - [ ] 2. LangSmith Production Tracing & Automated Evaluation (Evals)
       - Integrate `@traceable` decorators and LangSmith evaluation suites (RAGAS / automated LLM-as-a-judge trajectory testing) to quantify agent accuracy across 100 benchmark financial questions.
 - [ ] 3. Redis Distributed Caching Layer
@@ -241,14 +248,14 @@ To guarantee you land a **$150,000–$250,000+ Agentic AI Engineer** role in **J
 
 ---
 
-## 7. Quick-Start Commands & Verification
+## 8. Quick-Start Commands & Verification
 
 ### Run the Application Locally
 ```powershell
 # 1. Activate Virtual Environment
 .\env\Scripts\activate
 
-# 2. Run the Full Unit Test Suite (18 Tests)
+# 2. Run the Full Unit Test Suite (31 Tests)
 python -m pytest marketpulse -v
 
 # 3. Start the FastAPI Server & Institutional Terminal

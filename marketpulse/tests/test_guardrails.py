@@ -8,6 +8,7 @@ and enforces non-solicitation financial compliance rules.
 import pytest
 from app.services.sql_guard import validate_and_sanitize_sql, SecurityGuardrailException
 from app.agents.query_agent.tools.db_read import query_database
+from app.agents.query_agent.tools.db_write import remove_stock
 from app.agents.query_agent.tools.web import search_web
 from app.agents.query_agent.agent import SYSTEM_PROMPT
 
@@ -82,3 +83,11 @@ def test_system_prompt_compliance_rules():
     """Verify that financial compliance and untrusted data rules exist in SYSTEM_PROMPT."""
     assert "FINANCIAL COMPLIANCE & NON-SOLICITATION" in SYSTEM_PROMPT
     assert "UNTRUSTED DATA GUARDRAIL" in SYSTEM_PROMPT
+
+
+@pytest.mark.anyio
+async def test_remove_stock_requires_confirmation():
+    """Verify that remove_stock blocks unconfirmed deletion requests unless confirm=True is set."""
+    res = await remove_stock.ainvoke({"ticker": "NVDA", "confirm": False})
+    assert "DESTRUCTIVE ACTION CONFIRMATION REQUIRED" in res
+    assert "confirm=True" in res
