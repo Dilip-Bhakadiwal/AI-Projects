@@ -1,5 +1,5 @@
 anyio==4.14.2
-asgi-correlation-id==4.3.3
+asgi-correlation-id==5.0.1
 asyncpg==0.31.0
 beautifulsoup4==4.15.0
 cachetools==7.1.6
