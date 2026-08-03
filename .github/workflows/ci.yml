@@ -1,0 +1,51 @@
+name: MarketPulse CI/CD Quality Gate
+
+on:
+  push:
+    branches: [ main, marketpulse-ai ]
+  pull_request:
+    branches: [ main, marketpulse-ai ]
+
+jobs:
+  quality-gate:
+    name: 66-Test Audit Suite & Verification
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHONPATH: ${{ github.workspace }}/marketpulse
+      # Fallback dummy environment variables for CI testing without exposing secrets
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY || 'test_nvapi_key_dummy' }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || 'test_openrouter_key_dummy' }}
+      API_KEY: ${{ secrets.API_KEY || 'test_api_key_dummy' }}
+      DATABASE_URL: "postgresql+asyncpg://postgres:test@localhost:5432/marketpulse_test"
+      LOG_LEVEL: "INFO"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Upgrade pip & Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Syntax & Compilation Check
+        run: |
+          echo "Verifying Python syntax across marketpulse codebase..."
+          python -m compileall -q marketpulse/app marketpulse/tests
+
+      - name: Run Full 66-Test Matrix & Audit Suite
+        run: |
+          echo "Running all 66 test cases (Audit Matrix, Guardrails, Concurrency, Unit, Stats)..."
+          python -m pytest marketpulse/tests -v --tb=short
+
+      - name: Dependency Vulnerability Scan (Non-blocking)
+        run: |
+          pip install pip-audit
+          pip-audit || echo "::warning::pip-audit detected potential dependency vulnerabilities"
