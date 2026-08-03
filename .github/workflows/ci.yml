@@ -11,6 +11,21 @@ jobs:
     name: 66-Test Audit Suite & Verification
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: marketpulse_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
       PYTHONPATH: ${{ github.workspace }}/marketpulse
       # Fallback dummy environment variables for CI testing without exposing secrets
@@ -43,7 +58,15 @@ jobs:
       - name: Run Full 66-Test Matrix & Audit Suite
         run: |
           echo "Running all 66 test cases (Audit Matrix, Guardrails, Concurrency, Unit, Stats)..."
-          python -m pytest marketpulse/tests -v --tb=short
+          python -m pytest marketpulse/tests -v --tb=short | tee pytest_output.log
+
+      - name: Upload Pytest Test Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-test-logs
+          path: pytest_output.log
+          retention-days: 7
 
       - name: Dependency Vulnerability Scan (Non-blocking)
         run: |

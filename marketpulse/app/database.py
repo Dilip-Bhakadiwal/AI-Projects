@@ -52,11 +52,16 @@ def _check_postgres_port() -> int:
         return s.connect_ex(('127.0.0.1', 5432))
 
 async def check_and_start_postgres():
-    """Checks if Postgres is running on port 5432. If not, requests Admin permission to start the Windows service."""
+    """Checks if Postgres is running on port 5432. If not on Windows, attempts to start the Windows service."""
     result = await asyncio.to_thread(_check_postgres_port)
 
     if result == 0:
         logger.info("PostgreSQL is already running.")
+        return
+
+    import sys
+    if not sys.platform.startswith("win"):
+        logger.warning("PostgreSQL (port 5432) is NOT running on localhost. On Linux/CI/Cloud, ensure database service is running.")
         return
 
     logger.warning("PostgreSQL (port 5432) is NOT running. Attempting to start the service...")
